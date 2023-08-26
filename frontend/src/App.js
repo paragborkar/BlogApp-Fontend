@@ -6,16 +6,19 @@ import Blogs from "./components/Blogs";
 import UserBlogs from "./components/UserBlogs";
 import BlogDetail from "./components/BlogDetail";
 import AddBlog from "./components/AddBlog";
+import axios from "axios";
 import { useSelector } from "react-redux";
 
 function App() {
 const isLoggedIn = useSelector(state=> state.isLoggedIn);
 console.log(isLoggedIn);
+const res =  axios.get('https://mern-blogapp-backend.onrender.com/api/blog');
   return (
     <React.Fragment>
       <header><Header/></header>
       <main>
         <Routes>
+          <Route path="/" element={<Auth/>} />
           <Route path="/auth" element={<Auth/>} />
           <Route path="/blogs" element={<Blogs/>} />
           <Route path="/myBlogs" element={<UserBlogs/>} />
