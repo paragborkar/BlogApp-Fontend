@@ -12,7 +12,9 @@ import { useSelector } from "react-redux";
 function App() {
 const isLoggedIn = useSelector(state=> state.isLoggedIn);
 console.log(isLoggedIn);
-const res =  axios.get('https://mern-blogapp-backend.onrender.com/api/blog');
+ useEffect(()=>{
+  const res =  axios.get('https://mern-blogapp-backend.onrender.com/api/blog');
+ },[])
   return (
     <React.Fragment>
       <header><Header/></header>
