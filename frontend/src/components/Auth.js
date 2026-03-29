@@ -1,4 +1,4 @@
-import { Button, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import {useDispatch} from 'react-redux';
 import React, { useState } from 'react';
@@ -9,17 +9,27 @@ import {authActions} from '../store/index';
 const Auth = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
     name:'',email:'',password:''
   });
   const handleSubmit = (e) =>{
     e.preventDefault()
+    setLoading(true);
     console.log(inputs);
     if(isSignup)
     {
-    sendRequest('signup').then((data)=>localStorage.setItem("userId",data.user._id)).then(()=>dispatch(authActions.login())).then(()=>navigate("/blogs")).then(data=> console.log(data));
+    sendRequest('signup')
+      .then((data)=>localStorage.setItem("userId",data.user._id))
+      .then(()=>dispatch(authActions.login()))
+      .then(()=>navigate("/blogs"))
+      .finally(()=>setLoading(false));
     }else{
-      sendRequest().then((data)=>localStorage.setItem("userId",data.user._id)).then(()=>dispatch(authActions.login())).then(()=>navigate("/blogs")).then(data=> console.log(data));
+      sendRequest()
+        .then((data)=>localStorage.setItem("userId",data.user._id))
+        .then(()=>dispatch(authActions.login()))
+        .then(()=>navigate("/blogs"))
+        .finally(()=>setLoading(false));
     }
   }
  
@@ -28,7 +38,10 @@ const Auth = () => {
       name: inputs.name,
       email: inputs.email,
       password: inputs.password,
-    }).catch(err=>alert("User Not Found,Please Signup"));
+    }).catch(err=>{
+      alert("User Not Found,Please Signup");
+      setLoading(false);
+    });
     const data = await res.data;
     console.log(data);
     return data;
@@ -48,7 +61,9 @@ const Auth = () => {
          { isSignup && <TextField margin='normal' name='name' value={inputs.name} onChange={handleChange} placeholder='Name' />}
           <TextField margin='normal' name='email' onChange={handleChange} type={'email'}  value={inputs.email} placeholder='Email' />
           <TextField margin='normal' name='password' onChange={handleChange}type={'password'}value={inputs.password} placeholder='Password' />
-          <Button sx={{borderRadius:3, marginTop:3}} variant="contained" color='warning' type='submit'>Submit</Button>
+          <Button disabled={loading} sx={{borderRadius:3, marginTop:3}} variant="contained" color='warning' type='submit'>
+            {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+          </Button>
           <Button onClick={() =>setIsSignup(!isSignup)} sx={{borderRadius:3, marginTop:3}} >Change To {isSignup ? "Login" : "Signup"}</Button>
         </Box>
       </form>
@@ -57,3 +72,4 @@ const Auth = () => {
 }
 
 export default Auth;
+

@@ -1,6 +1,6 @@
-import { Avatar, Card, CardContent, CardHeader, CardMedia, IconButton, Typography } from '@mui/material'
+import { Avatar, Card, CardContent, CardHeader, CardMedia, CircularProgress, IconButton, Typography } from '@mui/material'
 import { Box } from '@mui/system';
-import React from 'react';
+import React, { useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
@@ -8,28 +8,38 @@ import axios from 'axios';
 
 const Blog = ({title,description,imageURL,userName, isUser, id}) => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const handleEdit = (e) =>{
         navigate(`/myBlogs/${id}`)
     }
     const deleteRequest = async ()=>{
-        const res = await axios.delete(`https://mern-blogapp-backend.onrender.com/api/blog/${id}`).catch(err=>console.log(err));
+        const res = await axios.delete(`https://mern-blogapp-backend.onrender.com/api/blog/${id}`).catch(err=>{
+          console.log(err);
+          setLoading(false);
+        });
         const data = await res.data;
         return data;
     }
     const handleDelete = () =>{
-        deleteRequest().then(()=>navigate('/')).then(()=>('/blogs'))
+        setLoading(true);
+        deleteRequest()
+          .then(()=>navigate('/'))
+          .then(()=>navigate('/blogs')) // Redundant but keeping the original logic flow
+          .finally(()=>setLoading(false));
     }
   return (
     <div>
       <Card sx={{ width: '40%', margin:'auto',mt:'2',padding:2,boxShadow:"10px 10px 20px #ccc",":hover:":{boxShadow:"10px 10px 20px #ccc"}}}>
         {isUser && <Box display={"flex"}>
-            <IconButton  onClick={handleEdit} sx={{marginLeft:"auto"}} ><EditIcon/></IconButton>
-            <IconButton onClick={handleDelete} ><DeleteIcon/></IconButton>
+            <IconButton onClick={handleEdit} sx={{marginLeft:"auto"}} ><EditIcon/></IconButton>
+            <IconButton disabled={loading} onClick={handleDelete} >
+              {loading ? <CircularProgress size={24} /> : <DeleteIcon/>}
+            </IconButton>
             </Box>}
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: "red" }} aria-label="recipe">
-            {userName.charAt(0)}
+            {userName && userName.charAt(0)}
           </Avatar>
         }
     
@@ -55,3 +65,4 @@ const Blog = ({title,description,imageURL,userName, isUser, id}) => {
 }
 
 export default Blog;
+

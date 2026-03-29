@@ -1,4 +1,4 @@
-import { Button, InputLabel, TextField, Typography } from '@mui/material';
+import { Button, CircularProgress, InputLabel, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
@@ -8,7 +8,7 @@ const BlogDetail = () => {
   const navigate = useNavigate();
   const id = useParams().id;
   const [blog,setBlogs] = useState();
-  console.log(id);
+  const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
   
   });
@@ -17,7 +17,10 @@ const BlogDetail = () => {
       title:inputs.title,
       description:inputs.description,
 
-    }).catch(err=>console.log(err));
+    }).catch(err=>{
+      console.log(err);
+      setLoading(false);
+    });
     const data= await res.data;
     return data;
   }
@@ -29,8 +32,11 @@ const BlogDetail = () => {
   }
   const handleSubmit = (e) =>{
     e.preventDefault();
+    setLoading(true);
     console.log(inputs);
-    sendRequest().then(()=>navigate('/myblogs/'));
+    sendRequest()
+      .then(()=>navigate('/myblogs/'))
+      .finally(()=>setLoading(false));
   }
   const fetchDetails = async () =>{
     
@@ -47,12 +53,14 @@ const BlogDetail = () => {
       { inputs &&
      <form onSubmit={handleSubmit}>
       <Box border={3} borderColor={"linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(89,165,208,1) 35%, rgba(0,212,255,1) 100%)"} borderRadius={10} boxShadow="10px 10px 20px #ccc"  padding={3} margin={'auto'} marginTop={3} display="flex" flexDirection={"column"}  width="80%" >
-        <Typography fontWeight={'bold'} padding="3" color={"grey"} variant="h2" textAlign={"center"} >Post Your Blog</Typography>
+        <Typography fontWeight={'bold'} padding="3" color={"grey"} variant="h2" textAlign={"center"} >Edit Your Blog</Typography>
         <InputLabel sx={labelStyles}>Title</InputLabel>
         <TextField name="title" onChange={handleChange} value={inputs.title} margin='normal' variant='outlined'/>
         <InputLabel sx={labelStyles}>Description</InputLabel>
         <TextField name="description" onChange={handleChange} value={inputs.description} margin='normal' variant='outlined'/>
-        <Button sx={{mt:2,borderRadius:4}} variant="contained" color='warning' type="submit" >Submit</Button>
+        <Button disabled={loading} sx={{mt:2,borderRadius:4}} variant="contained" color='warning' type="submit" >
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+        </Button>
       </Box>
      </form>}
     </div>
@@ -60,3 +68,4 @@ const BlogDetail = () => {
 }
 
 export default BlogDetail
+
